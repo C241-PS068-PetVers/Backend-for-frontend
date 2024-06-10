@@ -4,8 +4,6 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-let blacklistedTokens = [];
-
 const register = async (req, res) => {
   const { name, username, email, password } = req.body;
 
@@ -74,7 +72,7 @@ const login = async (req, res) => {
     return res.status(400).json({ message: "Invalid password" });
   }
 
-  const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ email: user.email, username: user.username }, JWT_SECRET, { expiresIn: "1h" });
   return res.json({
     success: true,
     message: "Login successful",
@@ -116,10 +114,4 @@ const fetchUser = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
-  blacklistedTokens.push(token);
-  res.status(200).json({ message: "Logout successful" });
-};
-
-module.exports = { register, login, fetchUser, logout, };
+module.exports = { register, login, fetchUser };
